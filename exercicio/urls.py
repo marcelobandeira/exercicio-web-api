@@ -3,6 +3,7 @@ from exercicio import views
 from rest_framework import routers
 
 urlpatterns = [
+    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^users/$', 
         views.UserList.as_view(), 
         name=views.UserList.name),
@@ -21,4 +22,7 @@ urlpatterns = [
     url(r'^comments/(?P<pk>[0-9]+)/$', 
         views.CommentDetail.as_view(),
         name=views.CommentDetail.name), 
+    url(r'^$',
+        views.ApiRoot.as_view(),
+        name=views.ApiRoot.name),
 ]

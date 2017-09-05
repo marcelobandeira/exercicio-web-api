@@ -16,7 +16,7 @@ class Address(models.Model):
 	zipcode = models.CharField(max_length=150)
 	geo = models.ForeignKey(Geo, related_name='enderecos')
 
-class User(models.Model):
+class UserOld(models.Model):
 	username = models.CharField(max_length=150)
 	name = models.CharField(max_length=150)
 	email = models.CharField(max_length=150)
@@ -25,7 +25,8 @@ class User(models.Model):
 class Post(models.Model):
 	body = models.CharField(max_length=500)
 	title = models.CharField(max_length=300)
-	user = models.ForeignKey(User, related_name='posts')
+	user = models.ForeignKey(UserOld, related_name='posts')
+	owner = models.ForeignKey(User, related_name='posts', blank=True, null=True)
 
 class Comment(models.Model):
 	body = models.CharField(max_length=300)

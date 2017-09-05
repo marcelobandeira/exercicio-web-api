@@ -1,53 +1,84 @@
-from django.urls import reverse
 from django.utils import timezone
 from rest_framework import status, generics, viewsets
 from rest_framework.decorators import api_view
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
+from rest_framework.reverse import reverse
 from django.shortcuts import render
 from rest_framework.views import APIView
 
 from exercicio.serializers import *
 from exercicio.models import *
 
+from django.contrib.auth.models import User
+from rest_framework import permissions
+from exercicio.permissions import IsOwnerOrReadOnly, IsPostOwnerOrReadOnly
+
 class UserList(generics.ListCreateAPIView):
 	queryset = User.objects.all()
 	serializer_class = UserSerializer
 	name = 'user-list'
-	# permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+	permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
 class UserDetail(generics.RetrieveUpdateDestroyAPIView):
 	queryset = User.objects.all()
 	serializer_class = UserSerializer
 	name = 'user-detail'
-	# permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+	permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
 class PostList(generics.ListCreateAPIView):
 	queryset = Post.objects.all()
 	serializer_class = PostSerializer
 	name = 'post-list'
-	# permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+	permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
 class PostDetail(generics.RetrieveUpdateDestroyAPIView):
 	queryset = Post.objects.all()
 	serializer_class = PostSerializer
 	name = 'post-detail'
-	# permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+	permission_classes = (permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
 
 class CommentList(generics.ListCreateAPIView):
 	queryset = Comment.objects.all()
 	serializer_class = CommentSerializer
 	name = 'comment-list'
-	# permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+	permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
 class CommentDetail(generics.RetrieveUpdateDestroyAPIView):
-	queryset = Comment.objects.all()
-	serializer_class = CommentSerializer
-	name = 'comment-detail'
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly, IsPostOwnerOrReadOnly)
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    name = 'comment-detail'
 
-def import_data():
-    dump_data = open('db.json', 'r')
-    as_json = json.load(dump_data)
+class ApiRoot(generics.GenericAPIView):
+    name = 'api-root'
+    def get(self, request,*args, **kwargs):
+        return Response({
+            'users': reverse(UserList.name, request=request),
+            'posts': reverse(PostList.name, request=request),
+            'comments': reverse(CommentList.name, request=request),
+            })
+
+
+# def add_auth_user():
+#     users = UserOld.objects.all()
+
+#     for userold in users:
+
+#         print userold.username
+#         user = User(
+#             email=userold.email, is_staff=False, is_active=True,
+#             is_superuser=False, username=userold.username)
+
+#         user.set_password('password123')
+#         user.save()
+
+#         print user.email
+
+
+# def import_data():
+#     dump_data = open('db.json', 'r')
+#     as_json = json.load(dump_data)
 
     # for user in as_json['users']:
     #     geo = Geo.objects.create(lat=user['address']['geo']['lat'],
